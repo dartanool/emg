@@ -198,7 +198,7 @@ namespace Labs21
 
         private void button14_Click(object sender, EventArgs e)
         {
-            imageBox2.Image = Pic.Brightness(sourceImage, brightnes2)+ Pic.Contrast(sourceImage, сontrastv2)+Pic.Median(sourceImage)+sourceImage.And(thImage);
+            imageBox2.Image = Pic.Median(Pic.Contrast(Pic.Brightness(sourceImage, brightnes2), сontrastv2 ))+sourceImage.And(thImage);
         }
 
         private void label1_Click_1(object sender, EventArgs e)

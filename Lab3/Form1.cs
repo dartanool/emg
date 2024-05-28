@@ -222,8 +222,8 @@ namespace Lab3
                 for (int y = 0; y < sourceImage.Height; y++)
                 {
                     // вычисление новых координат пикселя
-                    int newX = (int)(x * qX - sourceImage.Width);
-                    int newY = (int)(y * qY - sourceImage.Height);
+                    int newX = (int)(x * qX + sourceImage.Width);
+                    int newY = (int)(y * qY + sourceImage.Height);
                     if (newX >= 0 && newX < sourceImage.Width && newY >= 0 && newY < sourceImage.Height)
                     {
                         // копирование пикселя в новое изображение
