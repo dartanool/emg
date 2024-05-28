@@ -36,33 +36,8 @@ namespace WindowsFormsApp1
             {
                 string fileName = openFileDialog.FileName;
                 sourceImage = new Image<Bgr, byte>(fileName);
-                Image<Gray, byte> grayImage = sourceImage.Convert<Gray, byte>();
-                var tempImage = grayImage.PyrDown();
-                var destImage = tempImage.PyrUp();
-                Image<Gray, byte> cannyEdges = destImage.Canny(cannyThreshold, cannyThresholdLinking);
-
-                var cannyEdgesBgr = cannyEdges.Convert<Bgr, byte>();
-                var resultImage = sourceImage.Sub(cannyEdgesBgr); // попиксельное вычитание
-
-                for (int channel = 0; channel < resultImage.NumberOfChannels; channel++)
-                    for (int x = 0; x < resultImage.Width; x++)
-                        for (int y = 0; y < resultImage.Height; y++) // обход по пискелям
-                        {
-                            // получение цвета пикселя
-                            byte color = resultImage.Data[y, x, channel];
-                            if (color <= 50)
-                                color = 0;
-                            else if (color <= 100)
-                                color = 25;
-                            else if (color <= 150)
-                                color = 180;
-                            else if (color <= 200)
-                                color = 210;
-                            else
-                                color = 255;
-                            resultImage.Data[y, x, channel] = color; // изменение цвета пикселя
-                        }
-                imageBox2.Image = resultImage.Resize(540,480, Inter.Linear);
+                
+                imageBox2.Image = Canny(sourceImage).Resize(540,480, Inter.Linear);
                 imageBox1.Image = sourceImage.Resize(640, 480, Inter.Linear);
             }
 
@@ -111,7 +86,7 @@ namespace WindowsFormsApp1
                 string fileName = openFileDialog.FileName;
                 capture = new VideoCapture(fileName);
                 capture.ImageGrabbed += ProcessFrame;
-                capture.Start();
+                capture.Start(); // начало обработки видеопотока
             }
         }   
 
@@ -120,8 +95,45 @@ namespace WindowsFormsApp1
             var frame = new Mat();
             capture.Retrieve(frame); // получение текущего кадра
             Image<Bgr, byte> image = frame.ToImage<Bgr, byte>();
-            imageBox1.Image = image;
-            
+            imageBox1.Image = image.Resize(540, 480, Inter.Linear);
+            imageBox2.Image = Canny(image).Resize(540, 480, Inter.Linear);
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            capture.Stop(); // остановка обработки видеопотока
+        }
+
+        public Image<Bgr, byte> Canny(Image<Bgr, byte> sourceImage)
+        {
+            Image<Gray, byte> grayImage = sourceImage.Convert<Gray, byte>();
+            var tempImage = grayImage.PyrDown();
+            var destImage = tempImage.PyrUp();
+            Image<Gray, byte> cannyEdges = destImage.Canny(cannyThreshold, cannyThresholdLinking);
+
+            var cannyEdgesBgr = cannyEdges.Convert<Bgr, byte>();
+            var resultImage = sourceImage.Sub(cannyEdgesBgr); // попиксельное вычитание
+
+            for (int channel = 0; channel < resultImage.NumberOfChannels; channel++)
+                for (int x = 0; x < resultImage.Width; x++)
+                    for (int y = 0; y < resultImage.Height; y++) // обход по пискелям
+                    {
+                        // получение цвета пикселя
+                        byte color = resultImage.Data[y, x, channel];
+                        if (color <= 50)
+                            color = 0;
+                        else if (color <= 100)
+                            color = 25;
+                        else if (color <= 150)
+                            color = 180;
+                        else if (color <= 200)
+                            color = 210;
+                        else
+                            color = 255;
+                        resultImage.Data[y, x, channel] = color; // изменение цвета пикселя
+                    }
+            return resultImage;
         }
     }
 }
